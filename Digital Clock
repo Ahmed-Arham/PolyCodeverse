@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Lights Digital Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        .clock-container {
+            position: relative;
+            text-align: center;
+            padding: 3rem;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            width: 90%;
+            max-width: 600px;
+        }
+        
+        .time {
+            font-size: 5.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff4e50, #f9d423, #00c9ff, #a5fecb);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 8s ease infinite;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .date {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .format-selector {
+            margin-top: 1.5rem;
+        }
+        
+        .format-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 0.8rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .format-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .format-btn.active {
+            background: linear-gradient(45deg, #ff4e50, #f9d423);
+            box-shadow: 0 0 20px rgba(249, 212, 35, 0.5);
+        }
+        
+        /* Animated background elements */
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.7;
+            animation: float 15s infinite linear;
+        }
+        
+        .blob1 {
+            background: linear-gradient(45deg, #ff4e50, #f9d423);
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+        
+        .blob2 {
+            background: linear-gradient(45deg, #00c9ff, #a5fecb);
+            width: 500px;
+            height: 500px;
+            bottom: -250px;
+            right: -250px;
+            animation-delay: -5s;
+        }
+        
+        .blob3 {
+            background: linear-gradient(45deg, #ff4e50, #00c9ff);
+            width: 350px;
+            height: 350px;
+            bottom: -150px;
+            left: 100px;
+            animation-delay: -10s;
+        }
+        
+        /* Animations */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, 10px) rotate(90deg); }
+            50% { transform: translate(0, 20px) rotate(180deg); }
+            75% { transform: translate(-10px, 10px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .time {
+                font-size: 4rem;
+            }
+            
+            .date {
+                font-size: 1.4rem;
+            }
+            
+            .format-btn {
+                padding: 0.6rem 1.2rem;
+                margin: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background elements -->
+    <div class="bg-blob blob1"></div>
+    <div class="bg-blob blob2"></div>
+    <div class="bg-blob blob3"></div>
+    
+    <div class="clock-container">
+        <div class="time" id="time">00:00:00</div>
+        <div class="date" id="date">Monday, January 1, 2023</div>
+        <div class="format-selector">
+            <button class="format-btn active" id="format24">24-Hour</button>
+            <button class="format-btn" id="format12">12-Hour</button>
+        </div>
+    </div>
+
+    <script>
+        const timeElement = document.getElementById('time');
+        const dateElement = document.getElementById('date');
+        const format24Btn = document.getElementById('format24');
+        const format12Btn = document.getElementById('format12');
+        
+        let is24HourFormat = true;
+        
+        function updateClock() {
+            const now = new Date();
+            
+            // Format time
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            let ampm = '';
+            
+            if (!is24HourFormat) {
+                ampm = hours >= 12 ? ' PM' : ' AM';
+                hours = hours % 12 || 12;
+            }
+            
+            hours = hours.toString().padStart(2, '0');
+            minutes = minutes.toString().padStart(2, '0');
+            seconds = seconds.toString().padStart(2, '0');
+            
+            const timeString = is24HourFormat 
+                ? `${hours}:${minutes}:${seconds}`
+                : `${hours}:${minutes}:${seconds}${ampm}`;
+            
+            timeElement.textContent = timeString;
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = now.toLocaleDateString('en-US', options);
+            dateElement.textContent = dateString;
+        }
+        
+        // Set up format toggle
+        format24Btn.addEventListener('click', () => {
+            is24HourFormat = true;
+            format24Btn.classList.add('active');
+            format12Btn.classList.remove('active');
+            updateClock();
+        });
+        
+        format12Btn.addEventListener('click', () => {
+            is24HourFormat = false;
+            format12Btn.classList.add('active');
+            format24Btn.classList.remove('active');
+            updateClock();
+        });
+        
+        // Initial update and set interval
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
